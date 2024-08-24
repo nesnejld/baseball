@@ -30,23 +30,24 @@ ext.runcommand = {
 ext.runyear={
     year->
     {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date dt=sdf.parse("${year}-04-01")
-            Date dtend=sdf.parse("${year}-10-31")
-            Calendar calendar=Calendar.getInstance()
-            calendar.setTime(dt)
-            runcommand('mkdir /Volumes/Swap/data2')
-            while(calendar.getTime().before(dtend)) {
-                String datestring=sdf.format(calendar.getTime())
-                System.out.println("start: ${datestring}")
-                def (rc,stdout,stderr)=runcommand("./getdata.py ${datestring} ${datestring} ${DATADIR}")
-                System.out.println("end  : ${datestring}")
-                calendar.add(Calendar.DAY_OF_MONTH, 1)
-            }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dt=sdf.parse("${year}-04-01")
+        Date dtend=sdf.parse("${year}-10-31")
+        Calendar calendar=Calendar.getInstance()
+        calendar.setTime(dt)
+        runcommand('mkdir /Volumes/Swap/data2')
+        while(calendar.getTime().before(dtend)) {
+            String datestring=sdf.format(calendar.getTime())
+            System.out.println("start: ${datestring}")
+            def (rc,stdout,stderr)=runcommand("./getdata.py ${datestring} ${datestring} ${DATADIR}")
+            System.out.println("end  : ${datestring}")
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
 
     }
 }
 task getdata {
+    group 'baseball'
     doLast {
         def years=['2016','2017','2018','2019','2020','2021','2022', '2023', '2024']
         for(year: years) {
@@ -56,6 +57,7 @@ task getdata {
 }
 
 task parameters {
+    group 'baseball'
     doLast {
         def (rc,stdout,stderr)=runcommand("./parameters.py")
         println rc
@@ -63,8 +65,25 @@ task parameters {
         println stderr
     }
 }
+task dump {
+    group 'baseball'
+    def command = 'pg_dump -C  baseball > baseball.psql'
+               def (rc,stdout,stderr)=runcommand(command)
+            print(stdout)
+            print(stderr)
+}
 task datatodb {
+    group 'baseball'
     doLast {
-        def (rc,stdout,stderr)=runcommand("./datatodb.py ${DATADIR}")
+        def commands=["./datatodb.py ${DATADIR}", "psql -d baseball -c 'drop table baseballdata'",
+                      "psql -d baseball -f create.sql",
+                      "psql -d baseball -f data.sql" ,"psql -d baseball -c 'select count(*) from baseballdata'"
+        ]
+        def rc,stdout,stderr
+        for(String command: commands) {
+            (rc,stdout,stderr)=runcommand(command)
+            print(stdout)
+            print(stderr)
+        }
     }
 }
