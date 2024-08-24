@@ -1,0 +1,74 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "getdata.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/getdata.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "2016-04-01",
+                "2016-04-01",
+                "/Volumes/Swap/data2"
+            ]
+        },
+        {
+            "name": "datatodb.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/datatodb.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "readdb.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/readdb.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "playerid.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/playerid.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "test.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "parameters.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/parameters.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "baseballsavantquery.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/baseballsavantquery.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        }
+    ]
+}
