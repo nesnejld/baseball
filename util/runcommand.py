@@ -1,5 +1,7 @@
 import subprocess
 import psycopg2
+
+
 def runcommand(command):
     p = subprocess.Popen(["bash", "-c", command],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -7,7 +9,9 @@ def runcommand(command):
     # return f"""\{"command": {command}, "stdout": {output}, "stderr": {errors}\}"""
     output = output.split('\n')
     errors = errors.split('\n')
-    return {"command": command, "stdout": output, "stderr": errors}
+    return {"rc": p.exitValue(), "stdout": output, "stderr": errors}
+
+
 class psql:
     def __init__(self):
         self.conn = psycopg2.connect("dbname=baseball user=djensen")

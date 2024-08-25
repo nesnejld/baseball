@@ -9,3 +9,4 @@ data0
 __pycache__
 gradle
 .idea
+*.psql

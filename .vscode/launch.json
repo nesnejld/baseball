@@ -18,8 +18,8 @@
             "justMyCode": false,
             "args": [
                 "2016-04-01",
-                "2016-04-01",
-                "/Volumes/Swap/data2"
+                "2016-05-01",
+                "/mnt/sda1/baseball"
             ]
         },
         {
