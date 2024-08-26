@@ -69,6 +69,17 @@
             "program": "${workspaceFolder}/baseballsavantquery.py",
             "console": "integratedTerminal",
             "justMyCode": false,
+        },
+        {
+            "name": "commands.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/web/bin/commands.py",
+            "console": "integratedTerminal",
+            "env": {
+                "QUERY_STRING": "command=exec&exec=pwd"
+            },
+            "justMyCode": false,
         }
     ]
 }

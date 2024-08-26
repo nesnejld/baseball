@@ -2,41 +2,69 @@
 <html>
 
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Statcast Parameters</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
-    <!-- <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sticky-footer-navbar/">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3"> -->
-    <link href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="/pngtree-vector-house-icon-png-image_695726.jpg">
-    <!-- Custom styles for this template -->
     <link href="css/public.css" rel="stylesheet">
-    <link href="css/dropdowns.css" rel="stylesheet">
+    <link href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link href="node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/pngtree-vector-house-icon-png-image_695726.jpg">
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.js">
+    </script>
 </head>
 
 <body>
-    <div class="mb-1">
-        <button class="btn btn-toggle align-items-center rounded" data-bs-toggle="collapse"
-            data-bs-target="#home-collapse" aria-expanded="true">
-            Home
-        </button>
-        <div class="collapse show" id="home-collapse" style="">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="link-dark">Overview</a></li>
-                <li><a href="#" class="link-dark rounded">Updates</a></li>
-                <li><a href="#" class="link-dark rounded">Reports</a></li>
-            </ul>
+    <div style="display:flex;max-width:700px;align-items: center;">
+        <div id="datepicker" class="input-group date" data-date-format="yyyy-mm-dd"
+            style="flex-grow:1;margin-right:100px;">
+            <div style="display:flex; align-items:center">
+                <label>Start Date: </label>
+                </span>
+                <input class="form-control" type="text" readonly />
+                <span class="input-group-addon">
+                    <i class="fa fa-solid fa-calendar fa-lg"></i>
+                </span>
+            </div>
+        </div>
+        <div id="enddatepicker" class="input-group date" data-date-format="yyyy-mm-dd"
+            style="flex-grow:1;margin-right:100px;">
+            <div style="display:flex; align-items:center">
+                <label>End Date: </label>
+                <input class="form-control" type="text" readonly />
+                <span class="input-group-addon">
+                    <i class="fa fa-solid fa-calendar fa-lg"></i>
+                </span>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-primary retrievecsv">Retrieve csv</button>
         </div>
     </div>
     <div class="container">
 
     </div>
+    <div class="status"></div>
+    <div id="overlay">
+        <div id="overlaytext">abcd</div>
+    </div>
 </body>
+<!-- <script>
+    $(function () {
+        $("#datepicker").datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            onSelect: function (date) {
+                alert(date);
+            },
+        }).datepicker('update', new Date());
+        $("#enddatepicker").datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            onSelect: function (date) {
+                alert(date);
+            },
+        }).datepicker('update', new Date());
+    });
+</script> -->
 <script src="node_modules/requirejs/require.js"></script>
 <script src="js/index.js"></script>
 

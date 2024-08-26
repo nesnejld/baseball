@@ -285,9 +285,6 @@ if True:
                     choice = {}
                     value['choice'] = choice
                     for v in values:
-                        # p = parents[v]
-                        # print(v.text)
-                        # print(v.tail.strip())
                         if 'id' in v.attrib:
                             key = v.attrib['id'][len(f"lbl_{shortid}'"):]
                             choice[key] = canonicalize(v.attrib['data'])
@@ -316,9 +313,6 @@ if True:
             value['multiple'] = False
             value['choice'] = choice
             for v in values:
-                # p = parents[v]
-                # print(v.text)
-                # print(v.tail.strip())
                 if 'value' in v.attrib:
                     key = v.attrib['value']
                     if key == '':
