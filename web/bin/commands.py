@@ -51,6 +51,7 @@ try:
             filename = fields['output'][0]
             with open(filename, "w") as f:
                 f.write(result['stdout'])
+        result['output'] = filename
         result['stdout'] = result["stdout"].split('\n')
         result['stderr'] = result["stderr"].split('\n')
         print(json.dumps(result))

@@ -2,7 +2,7 @@ define([], function () {
     class Overlay {
         constructor() { }
         static show() {
-            $("#overlay").css("display", "block");
+            $("#overlay").css("display", "flex");
         }
         static hide() {
             $("#overlay").css("display", "none");

@@ -5,6 +5,7 @@ import subprocess
 import os
 import urllib.parse
 from util.runcommand import runcommand
+import json
 outdir = '/Volumes/Swap/data'
 #
 # start date argument 'yyyy-mm-dd'
@@ -34,43 +35,44 @@ def setdates(start, end):
     return s, e
 
 
-fields = {
-    "all": "true",
-    "hfPT": "",  # pitch type FF
-    "hfPR": "",  # pitch result
-    "hfAB": "",
-    "hfBBT": "",
-    "hfZ": "",
-    "stadium": "",
-    "hfBBL": "",
-    "hfNewZones": "",
-    "hfGT": "",  # urllib.parse.unquote("R|PO|S|"),
-    "hfSea": "",
-    "hfSit": "",
-    "player_type": "{player_type}",
-    "hfOuts": "",
-    "opponent": "",
-    "pitcher_throws": "",
-    "batter_stands": "",
-    "hfSA": "",
-    "game_date_gt": "{startdate}",
-    "game_date_lt": "{enddate}",
-    "team": "",
-    "position": "",
-    "hfRO": "",
-    "home_road": "",
-    "hfFlag": "",
-    "metric_1": "",
-    "hfInn": "",
-    "min_pitches": "0",
-    "min_results": "0",
-    "group_by": "name",
-    # "sort_col": "pitches",
-    # "player_event_sort": "h_launch_speed",
-    "sort_order": "desc",
-    "min_abs": "0",
-    "type": "details"
-}
+fields = json.load(open("queryfields.json"))
+# fields = {
+#     "all": "true",
+#     "hfPT": "",  # pitch type FF
+#     "hfPR": "",  # pitch result
+#     "hfAB": "",
+#     "hfBBT": "",
+#     "hfZ": "",
+#     "stadium": "",
+#     "hfBBL": "",
+#     "hfNewZones": "",
+#     "hfGT": "",  # urllib.parse.unquote("R|PO|S|"),
+#     "hfSea": "",
+#     "hfSit": "",
+#     "player_type": "{player_type}",
+#     "hfOuts": "",
+#     "opponent": "",
+#     "pitcher_throws": "",
+#     "batter_stands": "",
+#     "hfSA": "",
+#     "game_date_gt": "{startdate}",
+#     "game_date_lt": "{enddate}",
+#     "team": "",
+#     "position": "",
+#     "hfRO": "",
+#     "home_road": "",
+#     "hfFlag": "",
+#     "metric_1": "",
+#     "hfInn": "",
+#     "min_pitches": "0",
+#     "min_results": "0",
+#     "group_by": "name",
+#     # "sort_col": "pitches",
+#     # "player_event_sort": "h_launch_speed",
+#     "sort_order": "desc",
+#     "min_abs": "0",
+#     "type": "details"
+# }
 print(fields)
 query_string = ""
 prefix = ''

@@ -25,8 +25,9 @@ define([], function () {
         status += `${keyprefix}game_date_gt=${startdate}`;
         keyprefix = '&';
         status += `${keyprefix}game_date_lt=${enddate}`;
-        status += '&all=true&type=detail"';
+        status += '&all=true&type=detail';
         $("div.status").text(`${baseurl}${status}`);
+        $("div.output").text(`/tmp/data.${startdate}.${enddate}.csv`);
         return;
     }
     return { constructquery: constructquery };

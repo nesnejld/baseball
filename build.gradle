@@ -49,6 +49,7 @@ ext.runyear={
 }
 task getdata {
     group 'baseball'
+    description 'Use to download csv files from baseballsavant website'
     doLast {
         def years=['2016','2017','2018','2019','2020','2021','2022', '2023', '2024']
         for(year: years) {
@@ -59,6 +60,7 @@ task getdata {
 
 task parameters {
     group 'baseball'
+    description 'Scrape baseballsavant website to get a complete list of query partameters.'
     doLast {
         def (rc,stdout,stderr)=runcommand("./parameters.py")
         println rc
@@ -68,6 +70,7 @@ task parameters {
 }
 task dump {
     group 'baseball'
+    description 'dump baseball database to baseball.psql file.'
     doLast {
     def command = 'pg_dump -C  baseball > baseball.psql'
                def (rc,stdout,stderr)=runcommand(command)
@@ -77,6 +80,7 @@ task dump {
 }
 task datatodb {
     group 'baseball'
+    description 'Move data from downloaded csvs to baseball database'
     doLast {
         def commands=["./datatodb.py ${DATADIR}", "psql -d baseball -c 'drop table baseballdata'",
                       "psql -d baseball -f create.sql",

@@ -135,7 +135,7 @@ $(function () {
         });
         $("button.retrievecsv").on("click", e => {
             let url = $("div.status").text();
-            let outputfile = '/tmp/aaaa.csv';
+            let outputfile = $('div.output').text();
             Overlay.text(`Retrieving ${url} and writing ${outputfile}`);
             Overlay.show();
             runcommand(`curl '${url}'`, { output: outputfile }).then(d => {
