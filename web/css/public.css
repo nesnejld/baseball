@@ -60,3 +60,8 @@ div.container.target {
     justify-content: center;
     align-items: center;
 }
+
+div.btn {
+    margin-left: 5px;
+    margin-right: 5px;
+}

@@ -1,5 +1,7 @@
 import subprocess
 import psycopg2
+from html.parser import HTMLParser
+import xml.etree.ElementTree as ET
 
 
 def runcommand(command):
@@ -30,3 +32,32 @@ class psql:
             except Exception as e:
                 print(e.args[0])
                 pass
+
+
+class HTML2XMLParser(HTMLParser):
+    def __init__(self, root):
+        super().__init__()
+        self.currentelement = root
+        self.parents = {}
+        self.parents[root] = None
+
+    def handle_starttag(self, tag, attrs):
+        element = ET.SubElement(self.currentelement, tag)
+        for a in attrs:
+            if a[1] is None:
+                continue
+            element.attrib[a[0]] = a[1]
+        self.parents[element] = self.currentelement
+        if tag in ['input', 'br', 'hr', 'img', 'link', 'col']:
+            pass
+        else:
+            self.currentelement = element
+
+    def handle_endtag(self, tag):
+        if tag in ['input', 'br', 'hr', 'img', 'link', 'col']:
+            pass
+        self.currentelement = self.parents[self.currentelement]
+
+    def handle_data(self, data):
+        if data.strip() != '':
+            self.currentelement.attrib['data'] = data.strip()

@@ -6,18 +6,20 @@
  */
 import    java.text.SimpleDateFormat 
 ext.runcommand = {
-    command->{
+    command, envVars=envVars->{
         // println "+++++ ${command}"
         def stdout = new ByteArrayOutputStream()
         def stderr = new ByteArrayOutputStream()
         def result;
+        print(envVars)
         try{
             result = exec { 
                 commandLine 'bash','-c',command
                 standardOutput = stdout;
                 errorOutput = stderr;
                 ignoreExitValue=true;
-            }
+                environment<< envVars;
+            } 
             //            println(result.exitValue)
             return new String [] {result.exitValue,stdout.toString().trim(),stderr.toString().trim()}
         } catch ( Exception  e ) {
@@ -60,12 +62,13 @@ task getdata {
 
 task parameters {
     group 'baseball'
-    description 'Scrape baseballsavant website to get a complete list of query partameters.'
+    description 'Scrape baseballsavant website to get a complete list of query parameters.'
     doLast {
-        def (rc,stdout,stderr)=runcommand("./parameters.py")
-        println rc
-        println stdout
-        println stderr
+        def (rc,stdout,stderr)=runcommand("./parameters.py", envVars)
+        println("============================")
+        println "rc: ${rc}"
+        println "stdout: ${stdout}"
+        println "stderr: ${stderr}"
     }
 }
 task dump {
@@ -74,8 +77,8 @@ task dump {
     doLast {
     def command = 'pg_dump -C  baseball > baseball.psql'
                def (rc,stdout,stderr)=runcommand(command)
-            print(stdout)
-            print(stderr)
+            println(stdout)
+            println(stderr)
     }
 }
 task datatodb {
@@ -88,9 +91,9 @@ task datatodb {
         ]
         def rc,stdout,stderr
         for(String command: commands) {
-            (rc,stdout,stderr)=runcommand(command)
-            print(stdout)
-            print(stderr)
+            (rc,stdout,stderr)=runcommand(command, envVars)
+            println(stdout)
+            println(stderr)
         }
     }
 }

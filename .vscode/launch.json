@@ -10,17 +10,34 @@
             "justMyCode": false,
         },
         {
-            "name": "getdata.py",
+            "name": "baseballsavant/getdata.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/getdata.py",
+            "program": "${workspaceFolder}/baseballsavant/getdata.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
                 "2016-04-01",
                 "2016-05-01",
-                "/mnt/sda1/baseball"
-            ]
+                "/mnt/sda1/baseball",
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "baseballref getdata.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/baseballref/getdata.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "{\"franch\":  \"ANY\", \"level\": \"mlb\",\"end_dt\":\"2024-08-29\", \"start_dt\": \"2024-04-01\", \"type\": \"b\"}"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         },
         {
             "name": "datatodb.py",

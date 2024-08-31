@@ -1,12 +1,12 @@
 #!/usr/bin/env python
+import sys
 import xml.etree.ElementTree as ET
 import json
-# import requests
 from util.runcommand import runcommand
-from html.parser import HTMLParser
-import sys
-import re
 import os
+import re
+from util.runcommand import HTML2XMLParser
+# import requests
 # https://baseballsavant.mlb.com/statcast_search
 #
 # uses the baseballsavent wbesite to infer query structure - can't find documentation
@@ -42,35 +42,7 @@ if not os.path.exists('newtree.xml'):
     newtree = ET.ElementTree()
     newtree._setroot(ET.Element('root'))
 
-    class MyHTMLParser(HTMLParser):
-        def __init__(self, root):
-            super().__init__()
-            self.currentelement = root
-            self.parents = {}
-            self.parents[root] = None
-
-        def handle_starttag(self, tag, attrs):
-            element = ET.SubElement(self.currentelement, tag)
-            for a in attrs:
-                if a[1] is None:
-                    continue
-                element.attrib[a[0]] = a[1]
-            self.parents[element] = self.currentelement
-            if tag in ['input', 'br', 'hr', 'img']:
-                pass
-            else:
-                self.currentelement = element
-
-        def handle_endtag(self, tag):
-            if tag in ['input', 'br', 'hr', 'img']:
-                pass
-            self.currentelement = self.parents[self.currentelement]
-
-        def handle_data(self, data):
-            if data.strip() != '':
-                self.currentelement.attrib['data'] = data.strip()
-
-    parser = MyHTMLParser(newtree.getroot())
+    parser = HTML2XMLParser(newtree.getroot())
     parser.feed(html)
 
     def traverse(node, file=sys.stderr, depth=0):

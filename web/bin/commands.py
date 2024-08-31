@@ -5,6 +5,8 @@ from urllib.parse import urlparse, parse_qs, unquote
 import subprocess
 import traceback
 import json
+import io
+# from baseballref.getdata import BaseballReference
 # os.system("touch /tmp/mmmm")
 #!/usr/bin/perl
 print("Content-type: text/html\n\n")
@@ -51,9 +53,19 @@ try:
             filename = fields['output'][0]
             with open(filename, "w") as f:
                 f.write(result['stdout'])
-        result['output'] = filename
+            result['output'] = filename
         result['stdout'] = result["stdout"].split('\n')
         result['stderr'] = result["stderr"].split('\n')
+        print(json.dumps(result))
+    elif command == 'file':
+        result = {}
+        result['filename'] = fields['filename'][0]
+        result['data'] = fields['data'][0]
+        jsonobject = json.loads(result['data'])
+        result['data'] = json.dumps(jsonobject, indent=2)
+        with open(result['filename'], "w") as f:
+            f.write(result['data'])
+        result['output'] = filename
         print(json.dumps(result))
     elif command == 'delete':
         result = runcommand('whoami')
@@ -72,7 +84,9 @@ try:
         print("<br/>")
         pass
 except Exception as e:
-    print('Exception')
-    traceback.print_exc(file=sys.stdout)
-    print(os.getcwd())
-    print(e)
+    result = {}
+    f = io.StringIO()
+    traceback.print_exc(file=f)
+    f.seek(0)
+    result['exception'] = f.read()
+    print(json.dumps(result))

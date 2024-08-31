@@ -1,6 +1,9 @@
 const jspaths = {
     url: 'js/url',
-    overlay: 'js/overlay'
+    overlay: 'js/overlay',
+    json: 'js/json',
+    baseballreference: 'js/baseballreference',
+    util: 'js/util',
 };
 
 require.config({
@@ -8,19 +11,8 @@ require.config({
     waitSeconds: 200,
 });
 $(function () {
-    require(['url', 'overlay'], function (url, Overlay) {
-        let keys = null;
-        function runcommand(command, options = null) {
-            args = {
-                command: 'exec',
-                exec: command,
-            };
-            args = Object.assign(args, options);
-            return $.get('/baseball-cgi-bin/commands.py',
-                args
-            );
-            return;
-        }
+    require(['url', 'overlay', 'json', 'util', 'baseballreference'], function (url, Overlay, json, util, baseballreference) {
+        let runcommand = util.runcommand;
         function collapseall() {
             let divs = $("div.target.list-item");
             for (let div of divs) {
@@ -103,27 +95,27 @@ $(function () {
                     table.on("click", e => {
                         e.stopImmediatePropagation();
                     });
-                    let tbody = $("<tbody>");
+                    let tbody = $("<tbody>").attr('data-key', k);
                     table.append(tbody);
                     container.append(table);
                     for (let kk in result[k].value.choice) {
-                        let tr = $("<tr>");
+                        let tr = $("<tr>").attr('data-key', k);
                         tbody.append(tr);
-                        let td = $("<td>");
+                        let td = $("<td>").attr('data-key', k);
                         tr.append(td);
-                        let checkbox = $("<input>").attr('type', 'checkbox');
+                        let checkbox = $("<input>").attr('type', 'checkbox').attr('data-key', k);
                         td.append(checkbox);
-                        checkbox.prop('div', div);
+                        checkbox.prop('div', div).attr('data-key', k);
                         checkbox.on('click', e => {
                             e.stopImmediatePropagation();
                             url.constructquery(result);
                             return;
                         });
-                        td = $("<td>");
+                        td = $("<td>").attr('data-key', k);
                         td.text(kk);
-                        checkbox.prop('value', kk);
+                        checkbox.prop('value', kk).attr('data-key', k);
                         tr.append(td);
-                        td = $("<td>");
+                        td = $("<td>").attr('data-key', k);
                         tr.append(td);
                         td.text(result[k].value.choice[kk]);
                     }
@@ -131,9 +123,9 @@ $(function () {
                 toggletarget(div);
             }
             url.constructquery(result);
-            $("div.container").empty().append(table);
+            $("div.container.parameters").empty().append(table);
         });
-        $("button.retrievecsv").on("click", e => {
+        $("#baseballsavant div.retrievecsv").on("click", e => {
             let url = $("div.status").text();
             let outputfile = $('div.output').text();
             Overlay.text(`Retrieving ${url} and writing ${outputfile}`);
@@ -143,6 +135,125 @@ $(function () {
                 Overlay.hide();
                 return;
             });
+        });
+        $("#baseballsavant div.getdatajson").on("click", e => {
+            let outputfile = $('div.output').text().replace(/\.csv$/, '.json');
+            Overlay.text(`Writing ${outputfile}`);
+            Overlay.show();
+            let parameters = json.getdatajson($("body>div.container.parameters"));
+            parameters['type'] = 'detail';
+            parameters['all'] = 'true';
+            let data = JSON.stringify(parameters);
+            args = {
+                command: 'file',
+                filename: outputfile,
+                data: data
+            };
+            $.get('/baseball-cgi-bin/commands.py',
+                args
+            ).done(d => {
+                let result = JSON.parse(d);
+                return;
+            }).always(d => {
+                Overlay.hide();
+            });
+            return;
+            // runcommand(`curl '${url}'`, { output: outputfile }).then(d => {
+            //     d = JSON.parse(d);
+            //     Overlay.hide();
+            //     return;
+            // });
+        });
+        $("#baseballref div.retrievecsv").on("click", e => {
+            $("div.container.baseballref").empty().text('Retrieving data');
+            let startdate = $("#baseballref div.datepicker input").val();
+            let enddate = $("#baseballref div.enddatepicker input").val();
+            args = {
+                "franch": 'ANY',
+                "level": 'mlb',
+                "end_dt": enddate,
+                "start_dt": startdate,
+                "type": 'b'
+            };
+            baseballreference.getdatajson(args).then(function (data) {
+                let fields = ['data', 'csk', 'href', 'title'];
+                urlprefix = baseballreference.urlprefix;
+                function gettd(c) {
+                    for (let f of fields) {
+                        if (f in c) {
+                            if (f == 'href') {
+                                return $("<td>").append($("<a>").attr("data-href", urlprefix + c[f]).text(c['key']).attr("href", "#"));
+                            }
+                            return $("<td>").text(c[f]);
+                        }
+                    }
+                }
+                $("div.container.baseballref").empty().append($("<pre>").text(JSON.stringify(data, null, 2)));
+                let table = $("<table>").addClass('table table-striped');
+                let thead = $("<thead>");
+                let tbody = $("<tbody>");
+                table.append(thead).append(tbody);
+                let tr = $("<tr>");
+                thead.append(tr);
+                for (let c of data.columns) {
+                    let th = $("<th>").text(c.key);
+                    tr.append(th);
+                }
+                let ii = 0;
+                for (let i in data.rows) {
+                    let r = data.rows[i];
+                    if (r.length == 0) {
+                        continue;
+                    }
+                    ii += 1;
+                    let tr = $("<tr>");
+                    let td = $("<td>").text(ii);
+                    tbody.append(tr);
+                    tr.append(td);
+                    for (let c of r) {
+                        td = gettd(c);
+                        tr.append(td);
+                    }
+                }
+                $("div.container.baseballref").empty().append(table);
+                $("a[data-href]").on("click", e => {
+                    let href = $(e.currentTarget).attr('data-href');
+                    window.open(href);
+                    return;
+                });
+                return;
+            });
+
+            return;
+        });
+        $("#baseballref div.getdatajson").on("click", e => {
+            // let outputfile = $('div.output').text().replace(/\.csv$/, '.json');
+            // Overlay.text(`Writing ${outputfile}`);
+            // Overlay.show();
+            // let parameters = json.getdatajson($("body>div.container.parameters"));
+            // parameters['type'] = 'detail';
+            // parameters['all'] = 'true';
+            // let data = JSON.stringify(parameters);
+            // args = {
+            //     command: 'file',
+            //     filename: outputfile,
+            //     data: data
+            // };
+            // $.get('/baseball-cgi-bin/commands.py',
+            //     args
+            // ).done(d => {
+            //     let result = JSON.parse(d);
+            //     return;
+            // }).always(d => {
+            //     Overlay.hide();
+            // });
+            // return;
+            // runcommand(`curl '${url}'`, { output: outputfile }).then(d => {
+            //     d = JSON.parse(d);
+            //     Overlay.hide();
+            //     return;
+            // });
+            return;
         });
         $("body").on("click", e => {
             collapseall();
@@ -162,9 +273,29 @@ $(function () {
             datepicker('option', 'onSelect', function () {
                 alert(date);
             });
+        $("#baseballref div.datepicker").datepicker({
+            autoclose: true,
+            todayHighlight: true,
+        }).datepicker('update', new Date()).
+            datepicker('option', 'onSelect', function () {
+                alert(date);
+            });
+        $("#baseballref div.enddatepicker").datepicker({
+            autoclose: true,
+            todayHighlight: true,
+        }).datepicker('update', new Date()).
+            datepicker('option', 'onSelect', function () {
+                alert(date);
+            });
         $("#datepicker input, #enddatepicker input").on('change', function () {
             url.constructquery(keys);
             return;
+        });
+        $("#baseballref-tab").on("click", e => {
+            $("div.status").text('');
+        });
+        $.get("baseballref/help.html").then(d => {
+            $("div.container.baseballref").empty().append(d);
         });
         return;
     });
