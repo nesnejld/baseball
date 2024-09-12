@@ -12,6 +12,7 @@ require.config({
 });
 $(function () {
     require(['url', 'overlay', 'json', 'util', 'baseballreference'], function (url, Overlay, json, util, baseballreference) {
+        baseballreference.getparametersjson();
         let runcommand = util.runcommand;
         function collapseall() {
             let divs = $("div.target.list-item");
@@ -175,7 +176,8 @@ $(function () {
                 "start_dt": startdate,
                 "type": 'b'
             };
-            baseballreference.getdatajson(args).then(function (data) {
+            baseballreference.getdatajson(args).then(function (_data_) {
+                let data = _data_.data;
                 let fields = ['data', 'csk', 'href', 'title'];
                 urlprefix = baseballreference.urlprefix;
                 function gettd(c) {
@@ -227,32 +229,6 @@ $(function () {
             return;
         });
         $("#baseballref div.getdatajson").on("click", e => {
-            // let outputfile = $('div.output').text().replace(/\.csv$/, '.json');
-            // Overlay.text(`Writing ${outputfile}`);
-            // Overlay.show();
-            // let parameters = json.getdatajson($("body>div.container.parameters"));
-            // parameters['type'] = 'detail';
-            // parameters['all'] = 'true';
-            // let data = JSON.stringify(parameters);
-            // args = {
-            //     command: 'file',
-            //     filename: outputfile,
-            //     data: data
-            // };
-            // $.get('/baseball-cgi-bin/commands.py',
-            //     args
-            // ).done(d => {
-            //     let result = JSON.parse(d);
-            //     return;
-            // }).always(d => {
-            //     Overlay.hide();
-            // });
-            // return;
-            // runcommand(`curl '${url}'`, { output: outputfile }).then(d => {
-            //     d = JSON.parse(d);
-            //     Overlay.hide();
-            //     return;
-            // });
             return;
         });
         $("body").on("click", e => {
@@ -297,6 +273,16 @@ $(function () {
         $.get("baseballref/help.html").then(d => {
             $("div.container.baseballref").empty().append(d);
         });
+        $("#baseballref-tab").on("shown.bs.tab", e => {
+            let parameters = baseballreference.getparametersjson().then(data => {
+                let target = $("#baseballref div.options");
+                target.empty();
+                baseballreference.buildoptions(target, data.parameters);
+                return;
+            });
+            return;
+        }
+        );
         return;
     });
 });

@@ -26,14 +26,16 @@
             }
         },
         {
-            "name": "baseballref getdata.py",
+            "name": "baseballref main.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/baseballref/getdata.py",
+            "program": "${workspaceFolder}/baseballref/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "{\"franch\":  \"ANY\", \"level\": \"mlb\",\"end_dt\":\"2024-08-29\", \"start_dt\": \"2024-04-01\", \"type\": \"b\"}"
+                "{\"franch\":  \"ANY\", \"level\": \"mlb\",\"end_dt\":\"2024-09-01\", \"start_dt\": \"2024-09-01\", \"type\": \"b\"}",
+                // "{\"debug\": false, \"actions\":[\"data\",\"csv\",\"parameters\"]}"
+                "{\"debug\": false, \"actions\":[\"parameters\"]}"
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
