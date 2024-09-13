@@ -30,4 +30,5 @@ function constructquery(keys) {
     $("div.output").text(`/tmp/data.${startdate}.${enddate}.csv`);
     return;
 }
+
 export { constructquery };

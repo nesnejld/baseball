@@ -3,6 +3,14 @@ import sys
 import os
 import json
 from baseballref.getdata import BaseballReference
+import logging
+format = '%(asctime)s %(levelname)s:%(name)s %(lineno)d :%(message)s'
+# logging.basicConfig(filename='/tmp/test.log',
+#                     level=logging.WARN, format=format)
+logging.basicConfig(stream=sys.stderr,
+                    level=logging.WARN, format=format)
+logger = logging.getLogger('net.homeip.dljensen.getdata')
+logger.warning('Got here')
 if __name__ == '__main__':
 
     args = {"franch":  'ANY',
@@ -25,14 +33,17 @@ if __name__ == '__main__':
     o = {'fileprefix': fileprefix, 'debug': False}
     o.update(options)
     actions = ['data', 'csv', 'parameters']
+    logger.warning(actions)
     if 'actions' in options:
         actions = options['actions']
         del options['actions']
+    logger.warning(actions)
     bref = BaseballReference(**options)
     logger = bref.logger
     result = {}
     data = None
     for a in actions:
+        logger.warning(f"""Action :{a}""")
         if a == 'data':
             data = bref.getdata(args)
             logger.info(json.dumps(data,  indent=2))

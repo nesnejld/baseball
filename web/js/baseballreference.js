@@ -1,4 +1,5 @@
 import * as util from './util.js';
+import { seterror } from './render.js';
 var urlprefix = 'https://www.baseball-reference.com';
 var urlpattern = "/leagues/daily.cgi?user_team=&bust_cache=&type={type}&lastndays=7&dates=fromandto&fromandto={start_dt}.{end_dt}&level={level}&franch={franch}&stat=&stat_value=0";
 var parametersurl = '/leagues/daily.fcgi';
@@ -24,14 +25,15 @@ function interpolate(string, args) {
     return string;
 }
 function getdatajson(args) {
-    $("div.status").empty().append($("<a>").attr("data-href", urlprefix + interpolate(urlpattern, args)).text("url").attr("href", "#"));
+    let url = urlprefix + interpolate(urlpattern, args);
+    $("div.status").empty().append($("<a>").attr("data-href", url).text(`url: ${url}`).attr("href", "#"));
     let sargs = JSON.stringify(args);
     let soptions = JSON.stringify({
         'urlprefix': urlprefix,
         'urlpattern': urlpattern,
-        'csvfile': '/tmp/getdatajson.csv',
+        'csvfile': `/tmp/baseballref.${args.start_dt}.${args.end_dt}.csv`,
         'debug': false,
-        'actions': ['data']
+        'actions': ['data', 'csv']
     });
     return new Promise((resolve, reject) => {
         let command = 'uname';
@@ -44,10 +46,9 @@ function getdatajson(args) {
             let sargs = JSON.stringify(args);
 
             command = `PATH=${home}/venv/bin:\${PATH} PYTHONPATH=${home}/git/baseball ../../baseballref/main.py '${sargs}' '${soptions}'`;
-            // command = `PATH=/Users/djensen/venv/bin:\${PATH} PYTHONPATH=/Users/djensen/git/baseball env`;
-            // command = 'env';
             util.runcommand(command).then(function (d) {
                 d = JSON.parse(d);
+                seterror(d.stderr.join('\n'));
                 resolve(JSON.parse(d.stdout.join('\n')));
             });
         });

@@ -1,13 +1,12 @@
 import * as url from './url.js';
 import { overlay as Overlay } from './overlay.js';
 import * as json from './json.js';
-import * as util from './util.js';
+// import * as util from './util.js';
+import { runcommand, interpolate, canonicalize } from './util.js';
 import * as baseballreference from './baseballreference.js';
+import { getdropdownvalue, buildoptions } from './baseballreference.js';
 $(function () {
-    let canonicalize = util.canonicalize;
-    let getdropdownvalue = baseballreference.getdropdownvalue;
-    baseballreference.getparametersjson();
-    let runcommand = util.runcommand;
+
     function collapseall() {
         let divs = $("div.target.list-item");
         for (let div of divs) {
@@ -277,7 +276,7 @@ $(function () {
         let parameters = baseballreference.getparametersjson().then(data => {
             let target = $("#baseballref div.options");
             target.empty();
-            baseballreference.buildoptions(target, data.parameters);
+            buildoptions(target, data.parameters);
             return;
         });
         return;

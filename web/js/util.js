@@ -13,5 +13,11 @@ function canonicalize(text) {
     let lines = text.split('\n');
     lines = lines.map(l => l.trim());
     return lines.join(' ').trim();
+} function interpolate(string, args) {
+    for (let key in args) {
+        let value = args[key];
+        string = string.replace(`{${key}}`, value);
+    }
+    return string;
 }
-export { runcommand, canonicalize };
+export { runcommand, canonicalize, interpolate };
