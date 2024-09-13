@@ -1,10 +1,11 @@
-import * as url from './url';
-import { overlay as Overlay } from './overlay';
-import * as json from './json';
-import * as util from './util';
-import * as baseballreference from './baseballreference';
-
+import * as url from './url.js';
+import { overlay as Overlay } from './overlay.js';
+import * as json from './json.js';
+import * as util from './util.js';
+import * as baseballreference from './baseballreference.js';
 $(function () {
+    let canonicalize = util.canonicalize;
+    let getdropdownvalue = baseballreference.getdropdownvalue;
     baseballreference.getparametersjson();
     let runcommand = util.runcommand;
     function collapseall() {
@@ -158,32 +159,20 @@ $(function () {
         // });
     });
     $("#baseballref div.retrievecsv").on("click", e => {
-        function canonicalize(text) {
-            let lines = text.split('\n');
-            lines = lines.map(l => l.trim());
-            return lines.join(' ').trim();
-        }
+
         $("div.container.baseballref").empty().text('Retrieving data');
         let startdate = $("#baseballref div.datepicker input").val();
         let enddate = $("#baseballref div.enddatepicker input").val();
-        let franch = $("#baseballref div.options div.dropdown>div").filter((i, div) => {
-            if (canonicalize($(div).text()) == 'Franchise') {
-                console.log("--" + canonicalize($(div).text()) + "--");
-            }
-            return canonicalize($(div).text()) == 'Franchise';
-        }
-        );
-        franch = franch.parent().find(`ul li[data-label="Franchise"] input`).filter((i, item) => {
-            let b = $(item).attr('checked') != undefined;
-            return b;
-        })[0];
-        franch = $(franch.closest("li")).attr("data-value");
+        let franch = getdropdownvalue('Franchise');
+        let level = getdropdownvalue('Level');
+        let type = getdropdownvalue('type');
+        // franch = $(franch.closest("li")).attr("data-value");
         let args = {
-            "franch": 'ANY',
-            "level": 'mlb',
+            "franch": franch,
+            "level": level,
             "end_dt": enddate,
             "start_dt": startdate,
-            "type": 'b'
+            "type": type
         };
         baseballreference.getdatajson(args).then(function (_data_) {
             let data = _data_.data;

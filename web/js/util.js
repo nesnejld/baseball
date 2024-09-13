@@ -9,4 +9,9 @@ function runcommand(command, options = null) {
     );
     return;
 }
-export { runcommand };
+function canonicalize(text) {
+    let lines = text.split('\n');
+    lines = lines.map(l => l.trim());
+    return lines.join(' ').trim();
+}
+export { runcommand, canonicalize };

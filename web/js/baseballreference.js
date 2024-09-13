@@ -1,4 +1,4 @@
-import * as util from './util';
+import * as util from './util.js';
 var urlprefix = 'https://www.baseball-reference.com';
 var urlpattern = "/leagues/daily.cgi?user_team=&bust_cache=&type={type}&lastndays=7&dates=fromandto&fromandto={start_dt}.{end_dt}&level={level}&franch={franch}&stat=&stat_value=0";
 var parametersurl = '/leagues/daily.fcgi';
@@ -122,21 +122,15 @@ function addradiobuttons(ul, label, options, defult) {
         $(ul.find("li")[0]).find('input').attr('checked', true);
     }
 }
+function getdropdownvalue(name) {
+    return $($(`#baseballref div.options div.dropdown[data-name="${name}"]`).
+        find(`ul li[data-label="${name}"] input:checked`).closest("li")).attr("data-value");
+
+}
 function buildoptions(target, options) {
 
     for (let label in options) {
-        // target.append($("<span>").css({ "margin": "10px", "color": "red" }).text(k));
-        // let div = $(`<div class="dropdown">
-        //     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        //     ${label}
-        //     </button>
-        //     <ul class="dropdown-menu">
-        //     <li><a class="dropdown-item" href="#">Action</a></li>
-        //     <li><a class="dropdown-item" href="#">Another action</a></li>
-        //     <li><a class="dropdown-item" href="#">Something else here</a></li>
-        //     </ul>
-        //     </div>`);
-        let div = $(`<div class="dropdown">
+        let div = $(`<div class="dropdown" data-name='${util.canonicalize(label)}'>
                     <div class="btn btn-primary btn-small dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     ${label}
                     </div>
@@ -149,17 +143,34 @@ function buildoptions(target, options) {
         let ul = div.find("ul");
         addradiobuttons(ul, label, options[label]);
         div.find("li").on("click", e => {
-            return;
+            let parameter = $(e.currentTarget).closest('div.dropdown').attr('data-name');
+            if (parameter == 'Dates') {
+                let dates = getdropdownvalue('Dates').split('.');
+                let startdate = dates[0];
+                let enddate = dates.length == 1 ? dates[0] : dates[1];
+                if (startdate == 'yesterday') {
+                    startdate = new Date(new Date().setDate(new Date().getDate() - 1));
+                    enddate = startdate;
+                }
+                // startdate = '2024-09-12';
+                // enddate = '2024-09-13';
+                $("#baseballref div.datepicker").datepicker("setDate", startdate);
+                $("#baseballref div.enddatepicker").datepicker("setDate", enddate);
+                return;
+            }
         });
         target.append(div);
         continue;
     }
     return;
 }
+
+
 export {
     urlprefix,
     urlpattern,
     getdatajson,
     getparametersjson,
-    buildoptions
+    buildoptions,
+    getdropdownvalue
 };
