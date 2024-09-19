@@ -1,5 +1,6 @@
 
-let baseurl = "https://baseballsavant.mlb.com/statcast_search/csv?";
+import { setstatus } from './render.js';
+import { baseurl } from './constants.js';
 function constructquery(keys) {
     // let key = div.attr('data-key');
     let status = '';
@@ -20,13 +21,13 @@ function constructquery(keys) {
         }
         // console.log(k);dd
     }
-    let startdate = $("#datepicker input").val();
-    let enddate = $("#enddatepicker input").val();
+    let startdate = $("div.baseballsavant.datepicker input").val();
+    let enddate = $("div.baseballsavant.enddatepicker input").val();
     status += `${keyprefix}game_date_gt=${startdate}`;
     keyprefix = '&';
     status += `${keyprefix}game_date_lt=${enddate}`;
     status += '&all=true&type=detail';
-    $("div.status").text(`${baseurl}${status}`);
+    setstatus(`${baseurl}${status}`);
     $("div.output").text(`/tmp/data.${startdate}.${enddate}.csv`);
     return;
 }

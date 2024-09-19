@@ -69,3 +69,23 @@ div.btn {
 div.error pre {
     color: red;
 }
+
+table.table-fit {
+    width: auto !important;
+    table-layout: auto !important;
+}
+
+table.table-fit thead th,
+table.table-fit tbody td,
+table.table-fit tfoot th,
+table.table-fit tfoot td {
+    width: auto !important;
+}
+
+/* div.dropdown[data-name='Dates'] ul { */
+/* width: 500px; */
+/* height: 500px; */
+/* } */
+div.dropdown.sub-menu {
+    margin: 10px;
+}

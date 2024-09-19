@@ -7,7 +7,6 @@ function runcommand(command, options = null) {
     return $.get('/baseball-cgi-bin/commands.py',
         args
     );
-    return;
 }
 function canonicalize(text) {
     let lines = text.split('\n');

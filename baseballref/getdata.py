@@ -22,6 +22,10 @@ def where():
 
 
 class BaseballReference:
+    '''
+    The BaseballReference object represent a connection to baseballref and an html scraper. 
+    So far, only the dauly.cgi is invoked.
+    '''
 
     def __init__(self,
                  fileprefix='xxxx',

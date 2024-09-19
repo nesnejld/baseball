@@ -1,3 +1,16 @@
-<div>
-    This is the help document
+<div> This is the help document
+    <ul>setup
+        <li><span>Mac</span><br />
+            <pre>
+/Library/WebServer//Documents/baseball -&gt; /Users/djensen/git/baseball/web
+ScriptAliasMatch ^/baseball-cgi-bin/((?!(?i:webobjects)).*$) "/Users/djensen/git/baseball/web/bin/$1"
+&lt;Directory "/Users/djensen/git/baseball/web/bin"&gt;
+    AllowOverride None
+    Options ExecCGI Indexes FollowSymLinks Multiviews
+    AddHandler cgi-script .cgi .py .sh 
+    Require all granted
+&lt;/Directory&gt;
+           </pre>
+        </li>
+    </ul>
 </div>

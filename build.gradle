@@ -1,0 +1,2 @@
+ext.envVars=new HashMap()
+envVars.put('PYTHONPATH',rootDir.toString())

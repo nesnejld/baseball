@@ -12,12 +12,12 @@
     <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
 </head>
 
-<body>
+<body style="overflow:hidden">
 
     <div>
         <div style="display:flex">
             <div class="d-flex p-2 flex-grow-1 flex-column" style="background-color: white">
-
+                <div class="url"></div>
                 <ul class="nav nav-tabs" id="myTab" style="background-color:white" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="baseballsavant-tab" data-bs-toggle="tab"
@@ -34,7 +34,7 @@
                 <div class="d-flex tab-content flex-grow-1 flex-column" id="myTabContent">
                     <div id="baseballsavant" class="container tab-pane active">
                         <div style="display:flex;align-items: center;">
-                            <div id="datepicker" class="input-group date" data-date-format="yyyy-mm-dd"
+                            <div class="baseballsavant datepicker input-group date" data-date-format="yyyy-mm-dd"
                                 style="flex-grow:1;margin-right: 10px;">
                                 <div style="display:flex; align-items:center">
                                     <label style="width:150px">Start Date:</label>
@@ -44,7 +44,7 @@
                                     <i class="fa fa-solid fa-calendar fa-lg"></i>
                                 </span>
                             </div>
-                            <div id="enddatepicker" class="input-group date" data-date-format="yyyy-mm-dd"
+                            <div class="baseballsavant enddatepicker input-group date" data-date-format="yyyy-mm-dd"
                                 style="flex-grow:1;margin-right:10px;">
                                 <div style="display:flex; align-items:center">
                                     <label style="width:150px">End Date:</label>
@@ -64,46 +64,52 @@
 
                         </div>
                     </div>
-                    <div id="baseballref" class="container tab-pane fade">
-                        <div style="display:flex;align-items: center;">
-                            <div class="input-group date datepicker" data-date-format="yyyy-mm-dd"
-                                style="flex-grow:1;margin-right: 10px;">
-                                <div style="display:flex; align-items:center">
-                                    <label style="width:150px">Start Date:</label>
-                                </div>
-                                <input class="form-control" type="text" readonly />
-                                <span class="input-group-addon">
-                                    <i class="fa fa-solid fa-calendar fa-lg"></i>
-                                </span>
-                            </div>
-                            <div class="input-group date enddatepicker" data-date-format="yyyy-mm-dd"
-                                style="flex-grow:1;margin-right:10px;">
-                                <div style="display:flex; align-items:center">
-                                    <label style="width:150px">End Date:</label>
+                    <div id="baseballref" class="container tab-pane fade" style="margin:10px;max-width:100%">
+                        <div style="display:flex;flex-direction:column">
+                            <div style="display:flex;/*align-items: center;*/flex-direction:row;">
+                                <div class="input-group date datepicker" data-date-format="yyyy-mm-dd"
+                                    style="flex-grow:1;margin-right: 10px;">
+                                    <div style="display:flex; align-items:center">
+                                        <label style="width:150px">Start Date:</label>
+                                    </div>
                                     <input class="form-control" type="text" readonly />
                                     <span class="input-group-addon">
                                         <i class="fa fa-solid fa-calendar fa-lg"></i>
                                     </span>
                                 </div>
+                                <div class="input-group date enddatepicker" data-date-format="yyyy-mm-dd"
+                                    style="flex-grow:1;margin-right:10px;">
+                                    <div style="display:flex; align-items:center">
+                                        <label style="width:150px">End Date:</label>
+                                        <input class="form-control" type="text" readonly />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-solid fa-calendar fa-lg"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="display:flex">
+                                    <div class="btn btn-primary btm-sm retrievecsv baseballref">csv</div>
+                                    <div class="btn btn-primary dtn-sm getdatajson baseballref" style="display:none;">
+                                        json</div>
+                                </div>
                             </div>
-                            <div style="display:flex">
-                                <div class="btn btn-primary btm-sm retrievecsv baseballref">csv</div>
-                                <div class="btn btn-primary dtn-sm getdatajson baseballref">json</div>
-                            </div>
-                        </div>
-                        <div class="options" style="display: flex; flex-direction:row;">
+                            <div class="options"
+                                style="display: flex; flex-direction:row;margin-top:10px;margin-bottom:10px;">
 
-                        </div>
-                        <div class="container baseballref" style="overflow: scroll;max-height:500px;">
-                            <h1>Does this work</h1>
+                            </div>
+                            <div class="container baseballref"
+                                style="overflow: scroll;max-height:500px;margin-left: 10px;margin-right: 10px;max-width: 1860px;">
+                                <h1>Does this work</h1>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
     <div class="error" style="margin-left: 50px"></div>
-    <div class="status"></div>
+    <div class="status" style="margin-left: 50px; margin-right:50px"></div>
     <div id="overlay">
         <div style="display:flex;align-items:center;flex-grow:1">
             <div id="overlaytext">abcd</div>
