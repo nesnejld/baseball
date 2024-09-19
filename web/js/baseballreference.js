@@ -1,5 +1,5 @@
 import * as util from './util.js';
-import { urlprefix, urlpattern, parametersurl, user } from './constants.js';
+import { urlprefix, urlpattern, parametersurl, user, datadir } from './constants.js';
 import { seterror, setstatus, seturl } from './render.js';
 import { overlay as Overlay } from './overlay.js';
 
@@ -37,7 +37,7 @@ function interpolate(string, args) {
 function getdatajson(args) {
     let url = urlprefix + interpolate(urlpattern, args);
     seturl(url);
-    let csvfile = `/tmp/baseballref.${args.start_dt}.${args.end_dt}.csv`;
+    let csvfile = `${datadir}/baseballref.${args.start_dt}.${args.end_dt}.csv`;
     setstatus(`Writing ${csvfile}`);
     let sargs = JSON.stringify(args);
     let soptions = JSON.stringify({

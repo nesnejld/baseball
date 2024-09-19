@@ -16,7 +16,7 @@ def runcommand(command):
     # return f"""\{"command": {command}, "stdout": {output}, "stderr": {errors}\}"""
     output = output.split('\n')
     errors = errors.split('\n')
-    return {"rc": p.exitValue(), "stdout": output, "stderr": errors}
+    return {"rc": p.returncode, "stdout": output, "stderr": errors}
 
 
 class psql:

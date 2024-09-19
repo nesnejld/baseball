@@ -3,4 +3,5 @@ var urlpattern = "/leagues/daily.cgi?user_team=&bust_cache=&type={type}&lastnday
 var parametersurl = '/leagues/daily.fcgi';
 var baseurl = "https://baseballsavant.mlb.com/statcast_search/csv?";
 var user = 'djensen';
-export { urlprefix, urlpattern, parametersurl, baseurl, user };
+var datadir='/var/www/data'
+export { urlprefix, urlpattern, parametersurl, baseurl, user, datadir };
