@@ -111,22 +111,22 @@ class BaseballReference:
         j = {}
         unknown = 0
         xoptions = xml_tree.xpath(
-            './/div[@id="content"]//div[contains(@class,"options") or contains(@class,"criteria")]')
+            './/div[@id="content"]//div[contains(concat(" ",@class," ")," options ") or contains(concat(" ",@class," ")," criteria ")]')
         for xoption in xoptions:
             toption = etree.ElementTree(xoption)
             logger.debug(self.treetostring(toption))
-            for s in xoption.xpath('.//div[contains(@class,"fieldset") and not(contains(@class,"final"))]'):
+            for s in xoption.xpath('.//div[contains(concat(" ",@class," ")," fieldset ") and not(contains(concat(" ",@class," "),"final"))]'):
                 if 'data-type' in s.attrib:
                     if s.attrib['data-type'] == 'hidden':
                         continue
-                if s.find('./div[@class="formlabel"]') is not None:
+                if len(s.xpath('./div[concat(" ",@class," ")=" formlabel "]')) > 0:
                     option = canonicalize(canonicalize(
-                        s.find('./div[@class="formlabel"]').text))
+                        s.xpath('./div[concat(" ",@class," ")=" formlabel "]')[0].text))
                     logger.info(option)
                     pass
                 else:
-                    option = s.find(
-                        './/div[@class="choicefield"]/input')
+                    option = s.xpath(
+                        './/div[concat(" ",@class," ")=" choicefield "]/input')[0]
                     if option is not None:
                         option = option.attrib['name']
                     else:
@@ -135,25 +135,30 @@ class BaseballReference:
                 if 'data-type' in s.attrib:
                     if s.attrib['data-type'] == 'dropdown':
                         # logger.info(treetostring(s))
-                        j[option] = self.getchoices(s)
+                        j[option] = {'values': self.getchoices(
+                            s), 'attributes': None}
                         pass
                     elif s.attrib['data-type'] == 'radio':
-                        j[option] = self.getchoices(s)
+                        j[option] = {'values': self.getchoices(
+                            s), 'attributes': None}
                         pass
                     else:
-                        j[option] = self.getchoices(s)
+                        j[option] = {'values': self.getchoices(
+                            s), 'attributes': None}
                     pass
                 else:
                     logger.debug(self.treetostring(s))
-                    j[option] = []
-                    l = set(s.xpath('.//div[contains(@class,"formfield")]'))-set(s.xpath(
-                        './/div[@class="choice"]//div[contains(@class,"formfield")]'))
+                    j[option] = {'values': [], 'attributes': {}}
+                    l = set(s.xpath('.//div[contains(concat(" ",@class," ")," formfield ")]'))-set(
+                        s.xpath(""".//div[contains(concat(' ',@class,' ')," choice ")]//div[contains(concat(" ",@class," ")," formfield ")]"""))
                     for f in l:
                         logger.debug(self.treetostring(f))
                         if 'number' in f.attrib['class']:
                             pass
                         else:
-                            j[option].extend(self.getchoices(f))
+                            j[option]['values'].extend(self.getchoices(f))
+                            j[option]['attributes']['textinput'] = len(
+                                s.xpath('.//div[contains(concat(" ",@class," "),"number")]')) > 0
                     pass
         return j
 
@@ -218,12 +223,12 @@ class BaseballReference:
         j = []
         logger = self.logger
         choices = s.xpath(
-            './/div[@class="choicefield"]')
-        # choices += s.xpath('.//div[contains(@class, "choicefield ")]')
+            './/div[concat(" ",@class," ")=" choicefield "]')
+        # choices += s.xpath('.//div[contains(concat(" ",@class," "), "choicefield ")]')
         if (len(choices)) > 0:
             for choice in choices:
                 choiceoption = choice.xpath(
-                    '../div[@class="choiceoption"]')[0]
+                    '../div[concat(" ",@class," ")=" choiceoption "]')[0]
                 if choiceoption is not None:
                     label = canonicalize(choiceoption.text)
                 else:
@@ -236,6 +241,8 @@ class BaseballReference:
                 parent = choice.xpath('..')[0]
                 option = {'label': label, 'value': value,
                           'choices': self.getoptions(parent), 'selected': selected}
+                option.update({"textinput": len(choice.xpath(
+                    '../div[concat(" ",@class," ")=" choiceoption "]//input[@type="text"]')) > 0})
                 if self.debug:
                     option.update({'where': where(),
                                    "count": self.count})
@@ -246,6 +253,9 @@ class BaseballReference:
             options = self.getoptions(s)
             for option in options:
                 option['choices'] = []
+                # option.update({"textinput": len(choice.xpath(
+                #     '../div[concat(" ",@class," ")=" choiceoption "]//input[@type="text"]')) > 0})
+                option.update({"textinput": False})
             j.extend(options)
             pass
         if (len(j) > 0):

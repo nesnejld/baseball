@@ -1,16 +1,19 @@
-import * as util from './util.js';
-import { urlprefix, urlpattern, parametersurl, user, datadir } from './constants.js';
+import { runcommand, canonicalize } from './util.js';
+import { urlprefix, urlpattern, parametersurl, user, datadir, debug, uname } from './constants.js';
 import { seterror, setstatus, seturl } from './render.js';
 import { overlay as Overlay } from './overlay.js';
+
 
 //
 // Calling url with jQuery directly has COR violation
 //
-let command = 'uname';
-let uname = null;
-let home = null;
+let home = `/home/${user}`;
+if (uname == 'darwin') {
+    home = `/Users/${user}`;
+}
+;
 function getdropdowndiv(label) {
-    return $(`<div class="dropdown" data-name='${util.canonicalize(label)}'>
+    return $(`<div class="dropdown" data-name='${canonicalize(label)}'>
 <div class="btn btn-primary btn-small dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 ${label}
 </div>
@@ -20,13 +23,11 @@ ${label}
 </div>
 </div>`);
 };
-util.runcommand(command).then(d => {
-    uname = JSON.parse(d).stdout[0].toLowerCase();
-    home = `/home/${user}`;
-    if (uname == 'darwin') {
-        home = `/Users/${user}`;
-    }
-});
+function getinput(placeholder) {
+    return $(`<div class="form-group" style="display:flex;max-width: 120px;">
+    <input type="text" class="form-control" placeholder="${placeholder}">
+  </div>`);
+}
 function interpolate(string, args) {
     for (let key in args) {
         let value = args[key];
@@ -44,12 +45,12 @@ function getdatajson(args) {
         'urlprefix': urlprefix,
         'urlpattern': urlpattern,
         'csvfile': csvfile,
-        'debug': false,
+        'debug': debug,
         'actions': ['data', 'csv']
     });
     return new Promise((resolve, reject) => {
         let command = 'uname';
-        util.runcommand(command).then(d => {
+        runcommand(command).then(d => {
             let uname = JSON.parse(d).stdout[0].toLowerCase();
             home = `/home/${user}`;
             if (uname == 'darwin') {
@@ -60,7 +61,7 @@ function getdatajson(args) {
             command = `PATH=${home}/venv/bin:\${PATH} PYTHONPATH=${home}/git/baseball ../../baseballref/main.py '${sargs}' '${soptions}'`;
             Overlay.text(`Retrieving ${csvfile}`);
             Overlay.show();
-            util.runcommand(command).then(function (d) {
+            runcommand(command).then(function (d) {
                 d = JSON.parse(d);
                 seterror(d.stderr.join('\n'), { color: 'red' });
                 setstatus(`Wrote ${csvfile}`, { color: 'blue', background: 'lightgray' });
@@ -74,22 +75,22 @@ function getparametersjson(args = {}) {
     let soptions = JSON.stringify({
         'urlprefix': urlprefix,
         'urlpattern': parametersurl,
-        'debug': false,
+        'debug': debug,
         'actions': ['parameters']
     });
     let sargs = JSON.stringify(args);
     return new Promise((resolve, reject) => {
         let command = 'uname';
-        util.runcommand(command).then(d => {
+        runcommand(command).then(d => {
             let uname = JSON.parse(d).stdout[0].toLowerCase();
-            let home = '/home/djensen';
+            let home = `/home/${user}`;
             if (uname == 'darwin') {
-                home = '/Users/djensen';
+                home = `/Users/${user}`;
             }
             command = `PATH=${home}/venv/bin:\${PATH} PYTHONPATH=${home}/git/baseball ../../baseballref/main.py '${sargs}' '${soptions}'`;
             // command = `PATH=/Users/djensen/venv/bin:\${PATH} PYTHONPATH=/Users/djensen/git/baseball env`;
             // command = 'env';
-            util.runcommand(command).then(function (d) {
+            runcommand(command).then(function (d) {
                 d = JSON.parse(d);
                 seterror(d.stderr.join('\n'), { color: 'red' });
                 resolve(JSON.parse(d.stdout.join('\n')));
@@ -118,6 +119,11 @@ function addradiobuttons(ul, label, options) {
                 startdate = new Date(new Date().setDate(new Date().getDate() - 1));
                 enddate = startdate;
             }
+            if (startdate == 'lastndays') {
+
+                startdate = new Date(new Date().setDate(new Date().getDate() - parseInt($(e.currentTarget).find('input[type="text"]').val())));
+                enddate = new Date(Date.now());
+            }
             if ($(e.currentTarget).attr('data-group') && $(e.currentTarget).attr('data-group') == "since") {
                 enddate = new Date(Date.now());
             }
@@ -129,7 +135,8 @@ function addradiobuttons(ul, label, options) {
         setstatus(`args: ${JSON.stringify(getargs())}`, { "color": "black" });
         return;
     }
-    for (let option of options) {
+    let attributes = options.attributes;
+    for (let option of options.values) {
         let choices = option.choices;
         if (option.choices.length > 0) {
             let dropdowndiv = getdropdowndiv(option.label).addClass('sub-menu');
@@ -167,13 +174,30 @@ function addradiobuttons(ul, label, options) {
             }
         }
         else {
-            let li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
-                append($(`<div class="form-check">
+            let li = null;
+            if (option.textinput) {
+                let div = $(`<div><input type="text" class="form-control" placeholder="N" style="margin-left:10px; width:50px;"></div> `);
+                li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
+                    append($("<div>").css({ 'display': 'flex' }).append($(`<div class="form-check">
+        <input class="form-check-input" type="radio" name="${label}_radio" id="${label}_radio_${count}">
+        <label class="form-check-label" for="${label}_radio_${count}">
+          ${option.label}
+        </label>
+
+      </div>`)).append(div));
+                div.on("click", e => {
+                    e.stopPropagation();
+                });
+            }
+            else {
+                li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
+                    append($(`<div class="form-check">
         <input class="form-check-input" type="radio" name="${label}_radio" id="${label}_radio_${count}">
         <label class="form-check-label" for="${label}_radio_${count}">
           ${option.label}
         </label>
       </div>`));
+            }
             if ('selected' in option && option['selected']) {
                 li.find('input').attr('checked', true);
                 selected = li.find('input');
@@ -199,6 +223,14 @@ function buildoptions(target, options) {
         let ul = div.find("ul");
         addradiobuttons(ul, label, options[label]);
         target.append(div);
+        if (options[label].attributes && options[label].attributes.textinput) {
+
+            target.append($("<div>").css({ "display": "flex", "box-shadow": "10px 5px 5px #53a2e8" }).append(div).append($("<div>").append(getinput('Threshold'))));
+        }
+        else {
+            target.append(div);
+            // target.append($("<div>").css({ "display": "flex", "box-shadow": "10px 5px 5px #53a2e8" }).append(div));
+        }
         continue;
     }
     return;

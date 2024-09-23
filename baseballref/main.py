@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import json
-from baseballref.getdata import BaseballReference
+from baseballref.BaseballReference import BaseballReference
 import logging
 format = '%(asctime)s %(levelname)s:%(name)s %(lineno)d :%(message)s'
 # logging.basicConfig(filename='/tmp/test.log',

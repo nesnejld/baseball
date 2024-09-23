@@ -8,6 +8,13 @@ function runcommand(command, options = null) {
         args
     );
 }
+async function runcommandsync(command) {
+    return new Promise((resolve, reject) => {
+        runcommand(command).then(d => {
+            resolve(JSON.parse(d));
+        });
+    });
+}
 function canonicalize(text) {
     let lines = text.split('\n');
     lines = lines.map(l => l.trim());
@@ -19,4 +26,4 @@ function canonicalize(text) {
     }
     return string;
 }
-export { runcommand, canonicalize, interpolate };
+export { runcommand, runcommandsync, canonicalize, interpolate };

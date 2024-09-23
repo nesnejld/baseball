@@ -36,6 +36,7 @@
                 "{\"franch\":  \"ANY\", \"level\": \"mlb\",\"end_dt\":\"2024-09-01\", \"start_dt\": \"2024-09-01\", \"type\": \"b\"}",
                 // "{\"debug\": false, \"actions\":[\"data\",\"csv\",\"parameters\"]}"
                 "{\"debug\": false, \"actions\":[\"parameters\"]}"
+                // "{\"debug\": false, \"actions\":[\"data\", \"csv\"]}"
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
