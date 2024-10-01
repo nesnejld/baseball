@@ -8,6 +8,7 @@ import sys
 from lxml import etree
 from util.runcommand import canonicalize
 import traceback
+import pandas
 
 import logging
 
@@ -26,7 +27,8 @@ class BaseballReference:
     The BaseballReference object represent a connection to baseballref and an html scraper. 
     So far, only the dauly.cgi is invoked.
     '''
-
+    def getdtype(self, value):
+        return str
     def __init__(self,
                  fileprefix: str = 'xxxx',
                  debug: bool = False,
@@ -45,7 +47,32 @@ class BaseballReference:
         self.count = 0
         self.xml_tree = None
         return
-
+    def  getdataframe(self, args):
+        data=self.getdata(args)
+        columns=list(map(lambda d: d["key"], data['columns']))
+        rows=[]
+        for i,r in enumerate(data['rows']) :
+            row=[]
+            for j,c in enumerate(columns):
+                if c == 'ranker':
+                    row.append(i)
+                    continue
+                rr=r[j-1]
+                value = None
+                for f in ['data', 'text','csk','href']:
+                    if f in rr:
+                        value = rr[f]
+                        break
+                try:
+                    value = int(value)
+                except Exception as e:
+                    try :
+                        value = float(value)
+                    except Exception as e:
+                        pass
+                row.append(value)
+            rows.append(row)
+        return pandas.DataFrame(columns=columns, data=rows)
     def getdata(self, args: dict) -> dict:
         logger = self.logger
         url = self.urlprefix+self.urlpattern.format(**args)
@@ -71,12 +98,11 @@ class BaseballReference:
         th = xml_tree.findall(".//table//thead/tr/th")
 
         data = {'columns': [], 'rows': [], "url": url}
-        fields = {'data-stat': 'key', 'csk': 'csk',
+        fields = {'data-stat': 'key',  'csk': 'csk',
                   'title': 'title', 'data': 'data', }
         for t in th:
             j = {}
             for f in fields:
-                fields[f]
                 self.addtojson(t, f, j, fields[f])
             data['columns'].append(j)
             logger.debug(
@@ -96,7 +122,8 @@ class BaseballReference:
                     j['href'] = a.attrib['href']
                     self.addtojson(a, 'title', j)
                 jj.append(j)
-            data['rows'].append(jj)
+            if len(jj)>0:
+                data['rows'].append(jj)
             pass
         # xoption = toptions.xpath('contains("fieldset")')
         # data['options'] = options
@@ -210,6 +237,7 @@ class BaseballReference:
             for o in s.findall(xpath):
                 option = {'label': canonicalize(o.text),
                           'value': o.attrib['value']}
+                option['disabled'] ='disabled' in o.attrib
                 if self.debug:
                     option.update({"where": where(),
                                    "count": self.count})
@@ -264,6 +292,8 @@ class BaseballReference:
 
     def addtojson(self, element, field, json, key=None):
         if field in element.attrib:
+            if key == 'csk':
+                json['text']=element.xpath('a')[0].text
             json[key if key is not None else field] = element.attrib[field]
         return json
 

@@ -89,3 +89,15 @@ table.table-fit tfoot td {
 div.dropdown.sub-menu {
     margin: 10px;
 }
+
+span.disabled {
+    color: #0a58ca;
+    box-shadow: none;
+}
+
+li:has(> span.disabled) {
+    /* box-shadow: 10px 5px 5px #53a2e8; */
+    /* padding-right: 10px; */
+}
+
+/* color: var(--bs-btn-active-bg); */

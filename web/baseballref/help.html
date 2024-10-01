@@ -1,16 +1,29 @@
 <div> This is the help document
     <ul>setup
         <li><span>Mac</span><br />
+            <span>Set the symbolic link</span>
             <pre>
 /Library/WebServer//Documents/baseball -&gt; /Users/djensen/git/baseball/web
-ScriptAliasMatch ^/baseball-cgi-bin/((?!(?i:webobjects)).*$) "/Users/djensen/git/baseball/web/bin/$1"
-&lt;Directory "/Users/djensen/git/baseball/web/bin"&gt;
+</pre>
+            <span>Adjustments to /etc/apache2/httpd.conf</span>
+            <pre>
+    ScriptAliasMatch ^/baseball-cgi-bin/((?!(?i:webobjects)).*$) "/Users/djensen/git/baseball/web/bin/$1"
+    &lt;Directory "/Users/djensen/git/baseball/web/bin"&gt;
     AllowOverride None
     Options ExecCGI Indexes FollowSymLinks Multiviews
-    AddHandler cgi-script .cgi .py .sh 
+    AddHandler cgi-script .cgi .py .sh
     Require all granted
-&lt;/Directory&gt;
-           </pre>
+    &lt;/Directory&gt;
+    </pre>
+        </li>
+        <li><span>Python</span>
+            <div>Suppose the csv file retrieved is /tmp/baseballref.2023-03-01.2023-10-31.csv</div>
+            <pre>
+import pandas
+import pybaseball
+df=pandas.read_csv( "/tmp/baseballref.2023-03-01.2023-10-31.csv")
+df[df['player']=='Lindor,Francisco']
+</pre>
         </li>
     </ul>
 </div>

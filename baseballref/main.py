@@ -29,7 +29,7 @@ if __name__ == '__main__':
         options = json.loads(sys.argv[2])
     fileprefix = 'qqqq'
     logger.warning(args)
-    o = {'fileprefix': fileprefix, 'debug': False}
+    o = {'fileprefix': fileprefix, 'debug': True}
     o.update(options)
     actions = ['data', 'csv', 'parameters']
     if 'actions' in options:
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     logger = bref.logger
     result = {}
     data = None
+    parameters = None
     for a in actions:
         logger.info(f"""Action :{a}""")
         if a == 'data':
@@ -51,14 +52,19 @@ if __name__ == '__main__':
             parameters = bref.getAllOptions()
             result['parameters'] = parameters
             logger.info(json.dumps(parameters,  indent=2))
+    filename = None
     try:
-        with open(f"/tmp/{fileprefix}.parameters.json", "w")as f:
+        filename = f"/tmp/{fileprefix}.parameters.json"
+        with open(filename, "w")as f:
             json.dump(parameters, f, indent=2)
-        with open(f"/tmp/{fileprefix}.data.json", "w")as f:
+        filename = f"/tmp/{fileprefix}.data.json"
+        with open(filename, "w")as f:
             json.dump(data, f, indent=2)
-        with open(f"/tmp/{fileprefix}.all.json", "w")as f:
+        filename = f"/tmp/{fileprefix}.all.json"
+        with open(filename, "w")as f:
             json.dump({'data': data, 'parameters': parameters}, f, indent=2)
-    except:
+    except Exception as e:
+        logger.error(f"""{e.strerror}: {filename}""")
         pass
     json.dump(result, sys.stdout)
     pass

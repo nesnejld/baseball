@@ -11,8 +11,10 @@ let home = `/home/${user}`;
 if (uname == 'darwin') {
     home = `/Users/${user}`;
 }
-;
 function getdropdowndiv(label) {
+    return $(`div[class="dropdown"][data-name="${canonicalize(label)}"]`);
+}
+function createdropdowndiv(label) {
     return $(`<div class="dropdown" data-name='${canonicalize(label)}'>
 <div class="btn btn-primary btn-small dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 ${label}
@@ -23,7 +25,7 @@ ${label}
 </div>
 </div>`);
 };
-function getinput(placeholder) {
+function createinput(placeholder) {
     return $(`<div class="form-group" style="display:flex;max-width: 120px;">
     <input type="text" class="form-control" placeholder="${placeholder}">
   </div>`);
@@ -139,7 +141,7 @@ function addradiobuttons(ul, label, options) {
     for (let option of options.values) {
         let choices = option.choices;
         if (option.choices.length > 0) {
-            let dropdowndiv = getdropdowndiv(option.label).addClass('sub-menu');
+            let dropdowndiv = createdropdowndiv(option.label).addClass('sub-menu');
             ul.after(dropdowndiv);
             dropdowndiv.on("click", e => {
                 // e.preventDefault();
@@ -177,26 +179,50 @@ function addradiobuttons(ul, label, options) {
             let li = null;
             if (option.textinput) {
                 let div = $(`<div><input type="text" class="form-control" placeholder="N" style="margin-left:10px; width:50px;"></div> `);
+                div.find("input").on("change", e => {
+                    setstatus(`args: ${JSON.stringify(getargs())}`, { "color": "black" });
+                    return;
+                });
                 li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
                     append($("<div>").css({ 'display': 'flex' }).append($(`<div class="form-check">
         <input class="form-check-input" type="radio" name="${label}_radio" id="${label}_radio_${count}">
         <label class="form-check-label" for="${label}_radio_${count}">
           ${option.label}
         </label>
-
       </div>`)).append(div));
                 div.on("click", e => {
                     e.stopPropagation();
                 });
             }
             else {
-                li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
-                    append($(`<div class="form-check">
+                let ascii = ss => {
+                    return canonicalize(Array.from(ss).map(s => {
+                        return s.charCodeAt(0) < 128 ? s : '';
+                    }).join(''));
+                };
+                // console.log(ascii(option.label));
+                let ascii0 = s => {
+                    let ss = "";
+                    for (let i = 0; i < s.length; ++i) {
+                        if (s.charCodeAt(i) < 128) {
+                            ss += s[i];
+                        }
+                    }
+                    return canonicalize(ss);
+                };
+                if (option.disabled) {
+                    li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
+                        append($("<span>").addClass('disabled').text(ascii(option.label)));
+                }
+                else {
+                    li = $("<li>").addClass("dropdown-item").attr({ "href": "#", "data": option.label, 'data-value': option.value, "data-label": label }).
+                        append($(`<div class="form-check">
         <input class="form-check-input" type="radio" name="${label}_radio" id="${label}_radio_${count}">
         <label class="form-check-label" for="${label}_radio_${count}">
           ${option.label}
         </label>
       </div>`));
+                }
             }
             if ('selected' in option && option['selected']) {
                 li.find('input').attr('checked', true);
@@ -214,18 +240,21 @@ function addradiobuttons(ul, label, options) {
 function getdropdownvalue(name) {
     return $($(`#baseballref div.options div.dropdown[data-name="${name}"]`).
         find(`ul li[data-label="${name}"] input:checked`).closest("li")).attr("data-value");
-
 }
 function buildoptions(target, options) {
-
     for (let label in options) {
-        let div = getdropdowndiv(label);
+        let div = createdropdowndiv(label);
         let ul = div.find("ul");
         addradiobuttons(ul, label, options[label]);
         target.append(div);
         if (options[label].attributes && options[label].attributes.textinput) {
-
-            target.append($("<div>").css({ "display": "flex", "box-shadow": "10px 5px 5px #53a2e8" }).append(div).append($("<div>").append(getinput('Threshold'))));
+            let div = createinput('Threshold');
+            target.append($("<div>").css({ "display": "flex", "box-shadow": "10px 5px 5px #53a2e8" }).append(div).append($("<div>").
+                append(div)));
+            div.find("input[type='text']").on("change", e => {
+                setstatus(`args: ${JSON.stringify(getargs())}`, { "color": "black" });
+                return;
+            });
         }
         else {
             target.append(div);
@@ -249,16 +278,24 @@ function getargs() {
     let franch = getdropdownvalue('Franchise');
     let level = getdropdownvalue('Level');
     let type = getdropdownvalue('type');
+    let additionalcriteria = getdropdownvalue('Additional Criteria');
     // franch = $(franch.closest("li")).attr("data-value");
-    return {
+    let args = {
         "franch": franch,
         "level": level,
         "end_dt": enddate,
         "start_dt": startdate,
-        "type": type
+        "type": type,
+        "stat": "",
+        "stat_value": 0
     };
+    if (additionalcriteria.length > 0) {
+        args.stat = additionalcriteria;
+        args.stat_value = parseInt(getdropdowndiv('Additional Criteria').next("div").find('input[type="text"]').val());
+    }
+    return args;
 }
-$("#baseballref div.retrievecsv").on("click", e => {
+$("a.retrievecsv").on("click", e => {
     $("div.container.baseballref").empty().text('Retrieving data');
     // franch = $(franch.closest("li")).attr("data-value");
     getdatajson(getargs()).then(function (_data_) {
@@ -284,6 +321,9 @@ $("#baseballref div.retrievecsv").on("click", e => {
         for (let c of data.columns) {
             let th = $("<th>").text(c.key.split('_').join(' '));
             tr.append(th);
+            th.on("click", e => {
+                return;
+            });
         }
         let ii = 0;
         for (let i in data.rows) {
