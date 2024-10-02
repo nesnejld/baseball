@@ -9,6 +9,8 @@ from lxml import etree
 from util.runcommand import canonicalize
 import traceback
 import pandas
+import os
+import stat
 
 import logging
 
@@ -201,6 +203,10 @@ class BaseballReference:
             json.dump(data, open(f'{self.fileprefix}.json', 'w'),  indent=2)
         # with sys.stdout as f:
         self.csvfile = self.csvfile if self.csvfile is not None else f"{self.fileprefix}.csv"
+        try:
+            os.remove(self.csvfile)
+        except Exception as e:
+            pass
         with open(self.csvfile, "w") as f:
             prefix = ''
             for j in data['columns']:
@@ -226,6 +232,15 @@ class BaseballReference:
                     else:
                         continue
                 f.write('\n')
+        os.chmod(
+            self.csvfile,
+            stat.S_IRUSR |
+            stat.S_IWUSR |
+            stat.S_IRGRP |
+            stat.S_IWGRP |
+            stat.S_IROTH |
+            stat.S_IWOTH
+        )
 
     def printd(self, message):
         logger = self.logger

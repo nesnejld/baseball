@@ -32,7 +32,7 @@ async function getconstants() {
         let result = await runcommandsync('uname');
         let uname = result.stdout.join("\n").trim().toLowerCase();
         constants.uname = uname;
-        constants.datadir = constants.uname == 'darwin' ? '/tmp' : '/var/www/data';
+        constants.datadir = 'datadir' in constants ? constants.datadir : constants.uname == 'darwin' ? '/tmp' : '/var/www/data';
         constants.home = `/home/${constants.user}`;
         if (uname == 'darwin') {
             constants.home = `/Users/${constants.user}`;
