@@ -1,6 +1,7 @@
 
 import { setstatus } from './render.js';
-import { baseurl } from './constants.js';
+import { getconstants } from './constants.js';
+let { baseurl } = getconstants();
 function constructquery(keys) {
     // let key = div.attr('data-key');
     let status = '';

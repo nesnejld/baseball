@@ -1,16 +1,11 @@
 import { runcommand, runcommandsync, canonicalize, interpolate, savefile } from './util.js';
-import { urlprefix, urlpattern, parametersurl, user, datadir, debug, uname, browserhome } from './constants.js';
+import { getconstants, setconstants } from './constants.js';
 import { seterror, setstatus, seturl } from './render.js';
 import { overlay as Overlay } from './overlay.js';
-
-
+// let { urlprefix, urlpattern, parametersurl, user, datadir, debug, uname, browserhome } = getconstants();
 //
 // Calling url with jQuery directly has COR violation
 //
-let home = `/home/${user}`;
-if (uname == 'darwin') {
-    home = `/Users/${user}`;
-}
 function getdropdowndiv(label) {
     return $(`div[class="dropdown"][data-name="${canonicalize(label)}"]`);
 }
@@ -30,10 +25,13 @@ function createinput(placeholder) {
     <input type="text" class="form-control" placeholder="${placeholder}">
   </div>`);
 }
-function getdatajson(args) {
+async function getdatajson(args) {
+    let { urlprefix, urlpattern, home, datadir, debug } = await getconstants();
     let url = urlprefix + interpolate(urlpattern, args);
-    seturl(url);
     let csvfile = `${datadir}/baseballref.${args.start_dt}.${args.end_dt}.csv`;
+    seturl(url);
+    Overlay.text(`Retrieving ${csvfile}`);
+    Overlay.show();
     setstatus(`Writing ${csvfile}`);
     let sargs = JSON.stringify(args);
     let soptions = JSON.stringify({
@@ -44,29 +42,19 @@ function getdatajson(args) {
         'actions': ['data', 'csv']
     });
     return new Promise((resolve, reject) => {
-        let command = 'uname';
-        runcommand(command).then(d => {
-            let uname = JSON.parse(d).stdout[0].toLowerCase();
-            home = `/home/${user}`;
-            if (uname == 'darwin') {
-                home = `/Users/${user}`;
-            }
-            let sargs = JSON.stringify(args);
-
-            command = `PATH=${home}/venv/bin:\${PATH} PYTHONPATH=${home}/git/baseball ../../baseballref/main.py '${sargs}' '${soptions}'`;
-            Overlay.text(`Retrieving ${csvfile}`);
-            Overlay.show();
-            runcommand(command).then(function (d) {
-                d = JSON.parse(d);
-                seterror(d.stderr.join('\n'), { color: 'red' });
-                setstatus(`Wrote ${csvfile}`, { color: 'blue', background: 'lightgray' });
-                Overlay.hide();
-                resolve(JSON.parse(d.stdout.join('\n')));
-            });
+        let sargs = JSON.stringify(args);
+        let command = `PATH=${home}/venv/bin:\${PATH} PYTHONPATH=${home}/git/baseball ../../baseballref/main.py '${sargs}' '${soptions}'`;
+        runcommand(command).then(function (d) {
+            d = JSON.parse(d);
+            seterror(d.stderr.join('\n'), { color: 'red' });
+            setstatus(`Wrote ${csvfile}`, { color: 'blue', background: 'lightgray' });
+            Overlay.hide();
+            resolve(JSON.parse(d.stdout.join('\n')));
         });
     });
 }
-function getparametersjson(args = {}) {
+async function getparametersjson(args = {}) {
+    let { urlprefix, parametersurl, debug, user } = await getconstants();
     let soptions = JSON.stringify({
         'urlprefix': urlprefix,
         'urlpattern': parametersurl,
@@ -289,6 +277,9 @@ function getargs() {
     return args;
 }
 $("nav a.pythonscript").on("click", async e => {
+    Overlay.text(`Writing python`);
+    Overlay.show();
+    let { urlprefix, urlpattern, debug, datadir, home, browserhome } = await getconstants();
     let args = getargs();
     let csvfile = `${datadir}/baseballref.${args.start_dt}.${args.end_dt}.csv`;
     let sargs = JSON.stringify(args, null, 2);
@@ -306,7 +297,6 @@ $("nav a.pythonscript").on("click", async e => {
     let filename = '/tmp/aaaa.py';
     let command = [`#!/usr/bin/env -S PATH=${home}/venv/bin:${path} PYTHONPATH=${home}/git/baseball python`,
         "from baseballref.main import run",
-        "import logging",
     `args=${sargs}`,
     `options=${soptions}`,
     `actions=${JSON.stringify(actions)}`,
@@ -323,7 +313,6 @@ $("nav a.pythonscript").on("click", async e => {
     };
     command = [`#!/usr/bin/env -S PATH=${browserhome}/venv/bin:${path} PYTHONPATH=${browserhome}/git/baseball python`,
         "from baseballref.main import run",
-        "import logging",
     `args=${sargs}`,
     `options=${soptions}`,
     `actions=${JSON.stringify(actions)}`,
@@ -337,10 +326,13 @@ $("nav a.pythonscript").on("click", async e => {
     ).then(d => {
         console.log(d);
         setstatus(`Wrote ${filename}`);
+    }).always(d => {
+        Overlay.hide();
     });
 
 });
-$("nav a.retrievecsv").on("click", e => {
+$("nav a.retrievecsv").on("click", async e => {
+    let { urlprefix } = await getconstants();
     $("div.container.baseballref").empty().text('Retrieving data');
     // franch = $(franch.closest("li")).attr("data-value");
     getdatajson(getargs()).then(function (_data_) {
@@ -416,8 +408,6 @@ $("#baseballref-tab").on("shown.bs.tab", e => {
 });
 
 export {
-    urlprefix,
-    urlpattern,
     getdatajson,
     getparametersjson,
     buildoptions,

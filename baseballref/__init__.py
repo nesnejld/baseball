@@ -40,7 +40,7 @@ class BaseballReference:
                  loglevel='WARN'
                  ):
         self.fileprefix = fileprefix
-        self.debug = debug
+        self.debug = debug if isinstance(debug, bool) else debug == 'true'
         self.urlprefix = urlprefix
         self.urlpattern = urlpattern
         self.csvfile = csvfile

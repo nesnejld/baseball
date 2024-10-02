@@ -1,0 +1,9 @@
+{
+    "urlprefix": "https://www.baseball-reference.com",
+    "urlpattern": "/leagues/daily.cgi?user_team=&bust_cache=&type={type}&lastndays=7&dates=fromandto&fromandto={start_dt}.{end_dt}&level={level}&franch={franch}&stat={stat}&stat_value={stat_value}",
+    "parametersurl": "/leagues/daily.fcgi",
+    "baseurl": "https://baseballsavant.mlb.com/statcast_search/csv?",
+    "user": "djensen",
+    "debug": "true",
+    "browserhome": "/home/djensen"
+}
