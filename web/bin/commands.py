@@ -62,7 +62,10 @@ try:
         result['filename'] = fields['filename'][0]
         result['data'] = fields['data'][0]
         jsonobject = json.loads(result['data'])
-        result['data'] = json.dumps(jsonobject, indent=2)
+        if 'decode' in fields and fields['decode']:
+            result['data'] = jsonobject
+        else:
+            result['data'] = json.dumps(jsonobject, indent=2)
         with open(result['filename'], "w") as f:
             f.write(result['data'])
         result['output'] = filename

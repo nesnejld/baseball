@@ -1,5 +1,5 @@
-import { runcommand, canonicalize } from './util.js';
-import { urlprefix, urlpattern, parametersurl, user, datadir, debug, uname } from './constants.js';
+import { runcommand, runcommandsync, canonicalize, interpolate, savefile } from './util.js';
+import { urlprefix, urlpattern, parametersurl, user, datadir, debug, uname, browserhome } from './constants.js';
 import { seterror, setstatus, seturl } from './render.js';
 import { overlay as Overlay } from './overlay.js';
 
@@ -29,13 +29,6 @@ function createinput(placeholder) {
     return $(`<div class="form-group" style="display:flex;max-width: 120px;">
     <input type="text" class="form-control" placeholder="${placeholder}">
   </div>`);
-}
-function interpolate(string, args) {
-    for (let key in args) {
-        let value = args[key];
-        string = string.replace(`{${key}}`, value);
-    }
-    return string;
 }
 function getdatajson(args) {
     let url = urlprefix + interpolate(urlpattern, args);
@@ -295,7 +288,59 @@ function getargs() {
     }
     return args;
 }
-$("a.retrievecsv").on("click", e => {
+$("nav a.pythonscript").on("click", async e => {
+    let args = getargs();
+    let csvfile = `${datadir}/baseballref.${args.start_dt}.${args.end_dt}.csv`;
+    let sargs = JSON.stringify(args, null, 2);
+    let options = {
+        'urlprefix': urlprefix,
+        'urlpattern': urlpattern,
+        'csvfile': csvfile,
+        'debug': debug,
+        'loglevel': 'INFO'
+    };
+    let soptions = JSON.stringify(options, null, 2);
+    let actions = ["data", "csv", "parameters"];
+    let d = await runcommandsync("echo ${PATH}");
+    let path = d.stdout.join('\n').trim();
+    let filename = '/tmp/aaaa.py';
+    let command = [`#!/usr/bin/env -S PATH=${home}/venv/bin:${path} PYTHONPATH=${home}/git/baseball python`,
+        "from baseballref.main import run",
+        "import logging",
+    `args=${sargs}`,
+    `options=${soptions}`,
+    `actions=${JSON.stringify(actions)}`,
+        '[data,parameters,_]=run(args,options,actions)',
+        "pass",
+        ""
+    ].join(`\n`);
+    console.log(command);
+    args = {
+        command: "file",
+        filename: filename,
+        data: JSON.stringify(command),
+        decode: true
+    };
+    command = [`#!/usr/bin/env -S PATH=${browserhome}/venv/bin:${path} PYTHONPATH=${browserhome}/git/baseball python`,
+        "from baseballref.main import run",
+        "import logging",
+    `args=${sargs}`,
+    `options=${soptions}`,
+    `actions=${JSON.stringify(actions)}`,
+        '[data,parameters,_]=run(args,options,actions)',
+        "pass",
+        ""
+    ].join(`\n`);
+    savefile('dlj.py', command, 'text/plain'); // Cannot specify pathname
+    $.get('/baseball-cgi-bin/commands.py',
+        args
+    ).then(d => {
+        console.log(d);
+        setstatus(`Wrote ${filename}`);
+    });
+
+});
+$("nav a.retrievecsv").on("click", e => {
     $("div.container.baseballref").empty().text('Retrieving data');
     // franch = $(franch.closest("li")).attr("data-value");
     getdatajson(getargs()).then(function (_data_) {

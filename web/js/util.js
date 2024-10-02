@@ -19,11 +19,27 @@ function canonicalize(text) {
     let lines = text.split('\n');
     lines = lines.map(l => l.trim());
     return lines.join(' ').trim();
-} function interpolate(string, args) {
+}
+function interpolate(string, args) {
     for (let key in args) {
         let value = args[key];
         string = string.replace(`{${key}}`, value);
     }
     return string;
 }
-export { runcommand, runcommandsync, canonicalize, interpolate };
+function savefile(filename, data, mimetype) {
+    let blob = new Blob([data], { type: mimetype });
+    let link = document.createElement("a");
+    link.download = filename;
+    //link.innerHTML = "Download File";
+    link.href = window.URL.createObjectURL(blob);
+    document.body.appendChild(link);
+    link.onclick = () => {
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(link.href);
+        }, 100);
+    };
+    link.click();
+}
+export { runcommand, runcommandsync, canonicalize, interpolate, savefile };

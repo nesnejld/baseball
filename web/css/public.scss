@@ -1,3 +1,6 @@
+/*sass public.scss 2> /dev/null > public.css*/
+@import "../node_modules/bootstrap/scss/bootstrap";
+
 div.target.list-item:hover {
     color: blue;
 }
@@ -91,7 +94,7 @@ div.dropdown.sub-menu {
 }
 
 span.disabled {
-    color: #0a58ca;
+    color: var(--bs-link-hover-color);
     box-shadow: none;
 }
 
@@ -99,5 +102,3 @@ li:has(> span.disabled) {
     /* box-shadow: 10px 5px 5px #53a2e8; */
     /* padding-right: 10px; */
 }
-
-/* color: var(--bs-btn-active-bg); */

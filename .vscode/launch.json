@@ -43,6 +43,17 @@
             }
         },
         {
+            "name": "baseballref bbbb.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/baseballref/bbbb.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "datatodb.py",
             "type": "debugpy",
             "request": "launch",

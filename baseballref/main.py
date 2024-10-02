@@ -9,6 +9,29 @@ format = '%(asctime)s %(levelname)s:%(name)s %(lineno)d :%(message)s'
 logging.basicConfig(stream=sys.stderr,
                     level=logging.WARN, format=format)
 logger = logging.getLogger('baseballref.main')
+
+
+def run(args, options, actions):
+    bref = BaseballReference(**options)
+    logger = bref.logger
+    result = {}
+    data = None
+    parameters = None
+    for a in actions:
+        logger.info(f"""Action :{a}""")
+        if a == 'data':
+            data = bref.getdata(args)
+            logger.info(json.dumps(data,  indent=2))
+            result['data'] = data
+        if a == 'csv':
+            bref.buildtable(data)
+        if a == 'parameters':
+            parameters = bref.getAllOptions()
+            result['parameters'] = parameters
+            logger.info(json.dumps(parameters,  indent=2))
+    return [data, parameters, result]
+
+
 if __name__ == '__main__':
 
     args = {"franch":  'ANY',
@@ -35,23 +58,7 @@ if __name__ == '__main__':
     if 'actions' in options:
         actions = options['actions']
         del options['actions']
-    bref = BaseballReference(**options)
-    logger = bref.logger
-    result = {}
-    data = None
-    parameters = None
-    for a in actions:
-        logger.info(f"""Action :{a}""")
-        if a == 'data':
-            data = bref.getdata(args)
-            logger.info(json.dumps(data,  indent=2))
-            result['data'] = data
-        if a == 'csv':
-            bref.buildtable(data)
-        if a == 'parameters':
-            parameters = bref.getAllOptions()
-            result['parameters'] = parameters
-            logger.info(json.dumps(parameters,  indent=2))
+    [data, parameters, result] = run(args, options, actions)
     filename = None
     try:
         filename = f"/tmp/{fileprefix}.parameters.json"

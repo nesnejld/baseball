@@ -27,14 +27,17 @@ class BaseballReference:
     The BaseballReference object represent a connection to baseballref and an html scraper. 
     So far, only the dauly.cgi is invoked.
     '''
+
     def getdtype(self, value):
         return str
+
     def __init__(self,
                  fileprefix: str = 'xxxx',
                  debug: bool = False,
                  urlprefix: str = 'https://www.baseball-reference.com',
                  urlpattern: str = "/leagues/daily.cgi?user_team=&bust_cache=&type={type}&lastndays=7&dates=fromandto&fromandto={start_dt}.{end_dt}&level={level}&franch={franch}&stat=&stat_value=0",
-                 csvfile: str = None
+                 csvfile: str = None,
+                 loglevel='WARN'
                  ):
         self.fileprefix = fileprefix
         self.debug = debug
@@ -42,37 +45,41 @@ class BaseballReference:
         self.urlpattern = urlpattern
         self.csvfile = csvfile
         format = '%(asctime)s %(levelname)s:%(name)s %(lineno)d :%(message)s'
-        logging.basicConfig(level=logging.WARN, format=format)
+        # setting level here doe not appear to work
+        logging.basicConfig(format=format)
         self.logger = logging.getLogger('net.homeip.dljensen.getdata')
+        self.logger.setLevel(getattr(logging, loglevel))
         self.count = 0
         self.xml_tree = None
         return
-    def  getdataframe(self, args):
-        data=self.getdata(args)
-        columns=list(map(lambda d: d["key"], data['columns']))
-        rows=[]
-        for i,r in enumerate(data['rows']) :
-            row=[]
-            for j,c in enumerate(columns):
+
+    def getdataframe(self, args):
+        data = self.getdata(args)
+        columns = list(map(lambda d: d["key"], data['columns']))
+        rows = []
+        for i, r in enumerate(data['rows']):
+            row = []
+            for j, c in enumerate(columns):
                 if c == 'ranker':
                     row.append(i)
                     continue
-                rr=r[j-1]
+                rr = r[j-1]
                 value = None
-                for f in ['data', 'text','csk','href']:
+                for f in ['data', 'text', 'csk', 'href']:
                     if f in rr:
                         value = rr[f]
                         break
                 try:
                     value = int(value)
                 except Exception as e:
-                    try :
+                    try:
                         value = float(value)
                     except Exception as e:
                         pass
                 row.append(value)
             rows.append(row)
         return pandas.DataFrame(columns=columns, data=rows)
+
     def getdata(self, args: dict) -> dict:
         logger = self.logger
         url = self.urlprefix+self.urlpattern.format(**args)
@@ -122,7 +129,7 @@ class BaseballReference:
                     j['href'] = a.attrib['href']
                     self.addtojson(a, 'title', j)
                 jj.append(j)
-            if len(jj)>0:
+            if len(jj) > 0:
                 data['rows'].append(jj)
             pass
         # xoption = toptions.xpath('contains("fieldset")')
@@ -237,7 +244,7 @@ class BaseballReference:
             for o in s.findall(xpath):
                 option = {'label': canonicalize(o.text),
                           'value': o.attrib['value']}
-                option['disabled'] ='disabled' in o.attrib
+                option['disabled'] = 'disabled' in o.attrib
                 if self.debug:
                     option.update({"where": where(),
                                    "count": self.count})
@@ -293,7 +300,7 @@ class BaseballReference:
     def addtojson(self, element, field, json, key=None):
         if field in element.attrib:
             if key == 'csk':
-                json['text']=element.xpath('a')[0].text
+                json['text'] = element.xpath('a')[0].text
             json[key if key is not None else field] = element.attrib[field]
         return json
 

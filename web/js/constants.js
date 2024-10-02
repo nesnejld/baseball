@@ -9,4 +9,5 @@ var baseurl = "https://baseballsavant.mlb.com/statcast_search/csv?";
 var user = 'djensen';
 var datadir = uname == 'darwin' ? '/tmp' : '/var/www/data';
 var debug = 'true';
-export { urlprefix, urlpattern, parametersurl, baseurl, user, datadir, debug, uname };
+let browserhome = '/home/djensen';
+export { urlprefix, urlpattern, parametersurl, baseurl, user, datadir, debug, uname, browserhome };
